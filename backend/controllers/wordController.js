@@ -1,20 +1,27 @@
 import Word from "../Modal/Word.js";
+import axios from "axios";
 
-
-/// Get Meaing
-
+/// Get Meaning
 const getMeaning = async (req, res) => {
     try {
         const word = req.params.word;
-
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-        const data = await response.json();
-        const meaning = data[0]?.meanings?.[0];
-
-        res.json({ word, meaning });
+        const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        
+        if (response.data && response.data.length > 0) {
+            const data = response.data[0];
+            res.json({ 
+                word, 
+                meaning: data.meanings?.[0], // For backward compatibility
+                meanings: data.meanings,
+                phonetics: data.phonetics 
+            });
+        } else {
+            res.status(404).json({ error: "Meaning not found" });
+        }
 
     } catch (err) {
-        res.status(500).json({ error: "Meaning not found" });
+        console.error("Dictionary API Error:", err.message);
+        res.status(err.response?.status || 500).json({ error: "Meaning not found" });
     }
 };
 
