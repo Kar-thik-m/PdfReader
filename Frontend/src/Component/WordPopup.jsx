@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { HiX, HiVolumeUp, HiBookmark, HiOutlineBookmark } from "react-icons/hi";
+import backendUrl from "../backendUrl";
 
 const WordPopup = ({ word, onClose, onSaveSuccess }) => {
   const [data, setData] = useState(null);
@@ -14,8 +15,12 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
       setError(null);
       try {
         // We can use the dictionary API directly for speed
-        const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-        setData(response.data[0]);
+        const response = await axios.get(`${backendUrl}/api/words/meaning/${word}`);
+        if (!response.data.meaning) {
+          setError("Meaning not found. Please try another word.");
+        } else {
+          setData(response.data);
+        }
       } catch (err) {
         setError("Meaning not found. Please try another word.");
       } finally {
@@ -31,9 +36,9 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
   const handleSave = async () => {
     try {
       // Assuming backend is at http://localhost:3000
-      await axios.post('http://localhost:3000/api/words/save', {
+      await axios.post(`${backendUrl}/api/words/save`, {
         word: word,
-        meaning: data?.meanings[0]?.definitions[0]?.definition
+        meaning: data?.meaning?.definitions[0]?.definition
       });
       setIsSaved(true);
       if (onSaveSuccess) onSaveSuccess();
@@ -61,16 +66,16 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
         <div className="p-6 flex items-start justify-between bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-800">
           <div>
             <h2 className="text-3xl font-bold text-white capitalize mb-1">{word}</h2>
-            {data?.phonetic && <p className="text-indigo-400 font-mono text-sm">{data.phonetic}</p>}
+            {/* The backend currently doesn't return phonetics, but we'll leave this commented out or handle it gracefully */}
           </div>
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={handleSave}
               className={`p-2 rounded-xl transition-all ${isSaved ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
             >
               {isSaved ? <HiBookmark size={20} /> : <HiOutlineBookmark size={20} />}
             </button>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 bg-slate-800 text-slate-400 hover:text-white rounded-xl transition-all hover:bg-red-500/20 hover:text-red-400"
             >
@@ -92,25 +97,25 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Pronunciation */}
-              {data?.phonetics?.some(p => p.audio) && (
-                <button 
+              {/* Pronunciation - currently not provided by backend */}
+              {/* {data?.phonetics?.some(p => p.audio) && (
+                <button
                   onClick={playAudio}
                   className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors font-medium bg-indigo-500/10 px-4 py-2 rounded-lg"
                 >
                   <HiVolumeUp size={18} />
                   Listen to pronunciation
                 </button>
-              )}
+              )} */}
 
               {/* Meanings */}
-              {data?.meanings?.map((m, idx) => (
-                <div key={idx} className="space-y-3">
+              {data?.meaning && (
+                <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="italic text-indigo-400 text-sm font-semibold uppercase tracking-wider">{m.partOfSpeech}</span>
+                    <span className="italic text-indigo-400 text-sm font-semibold uppercase tracking-wider">{data.meaning.partOfSpeech}</span>
                     <div className="h-px flex-1 bg-slate-800"></div>
                   </div>
-                  {m.definitions.slice(0, 2).map((def, dIdx) => (
+                  {data.meaning.definitions.slice(0, 3).map((def, dIdx) => (
                     <div key={dIdx} className="bg-slate-800/50 p-4 rounded-2xl border border-slate-800/50">
                       <p className="text-slate-200 leading-relaxed">
                         {def.definition}
@@ -122,33 +127,33 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
                       )}
                     </div>
                   ))}
-                </div>
-              ))}
 
-              {/* Synonyms */}
-              {data?.meanings?.[0]?.synonyms?.length > 0 && (
-                <div className="pt-4 border-t border-slate-800">
-                  <p className="text-sm font-semibold text-slate-400 mb-2">Synonyms</p>
-                  <div className="flex flex-wrap gap-2">
-                    {data.meanings[0].synonyms.slice(0, 5).map((syn, sIdx) => (
-                      <span key={sIdx} className="px-3 py-1 bg-slate-800 rounded-full text-xs text-indigo-300 border border-slate-700">
-                        {syn}
-                      </span>
-                    ))}
-                  </div>
+                  {/* Synonyms */}
+                  {data.meaning.synonyms?.length > 0 && (
+                    <div className="pt-4 border-t border-slate-800">
+                      <p className="text-sm font-semibold text-slate-400 mb-2">Synonyms</p>
+                      <div className="flex flex-wrap gap-2">
+                        {data.meaning.synonyms.slice(0, 5).map((syn, sIdx) => (
+                          <span key={sIdx} className="px-3 py-1 bg-slate-800 rounded-full text-xs text-indigo-300 border border-slate-700">
+                            {syn}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
         </div>
-        
+
         <div className="p-6 bg-slate-800/30 border-t border-slate-800 text-center">
-            <button 
-                onClick={onClose}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/20"
-            >
-                Got it
-            </button>
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/20"
+          >
+            Got it
+          </button>
         </div>
       </div>
     </div>

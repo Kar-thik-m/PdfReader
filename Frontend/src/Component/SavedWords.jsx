@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { HiTrash, HiRefresh, HiBookOpen } from "react-icons/hi";
+import backendUrl from "../backendUrl";
 
 const SavedWords = ({ refreshTrigger }) => {
   const [words, setWords] = useState([]);
@@ -9,7 +10,7 @@ const SavedWords = ({ refreshTrigger }) => {
   const fetchWords = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/words/all");
+      const response = await axios.get(`${backendUrl}/api/words/all`);
       setWords(response.data);
     } catch (err) {
       console.error("Failed to fetch words", err);
@@ -29,7 +30,7 @@ const SavedWords = ({ refreshTrigger }) => {
           <HiBookOpen className="text-indigo-400" />
           Saved Words
         </h3>
-        <button 
+        <button
           onClick={fetchWords}
           className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-indigo-400 transition-all"
           title="Refresh list"
@@ -50,8 +51,8 @@ const SavedWords = ({ refreshTrigger }) => {
           </div>
         ) : (
           words.map((item) => (
-            <div 
-              key={item._id} 
+            <div
+              key={item._id}
               className="group bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-indigo-500/30 p-4 rounded-2xl transition-all duration-300"
             >
               <div className="flex justify-between items-start mb-2">
