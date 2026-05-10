@@ -1,30 +1,56 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "./Db/Db.js";
+import mongoose from "mongoose";
 import WordRouter from "./Route/wordRoutes.js";
 
 dotenv.config();
 
-connectDB();
 const app = express();
 const port = process.env.PORT || 3000;
 
+/* -------------------- CORS -------------------- */
 app.use(cors({
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
+    origin: ["http://localhost:5173", "https://pdfreader-4185.onrender.com"], // Add your deployed frontend URL here
+    credentials: true
 }));
+
+/* -------------------- Middleware -------------------- */
 app.use(express.json());
 
+/* -------------------- Root Route -------------------- */
 app.get("/", (req, res) => {
     res.send("API is running...");
 });
 
+/* -------------------- Routes -------------------- */
 app.use("/api/words", WordRouter);
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+/* -------------------- MongoDB Connection -------------------- */
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+
+        console.log("MongoDB Connected");
+
+    } catch (error) {
+        console.log("MongoDB Connection Error:", error.message);
+        process.exit(1);
+    }
+};
+
+/* -------------------- Start Server -------------------- */
+const startServer = async () => {
+    try {
+        await connectDB();
+
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+
+    } catch (error) {
+        console.log("Server Error:", error.message);
+    }
+};
+
+startServer();
