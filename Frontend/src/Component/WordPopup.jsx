@@ -14,12 +14,18 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
       setLoading(true);
       setError(null);
       try {
-        // We can use the dictionary API directly for speed
-        const response = await axios.get(`${backendUrl}/api/words/meaning/${word}`);
-        if (!response.data.meaning) {
+        // Fetching directly from the dictionary API to bypass backend issues
+        const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        const data = response.data;
+        console.log("data", data);
+        if (!data || !data.length) {
           setError("Meaning not found. Please try another word.");
         } else {
-          setData(response.data);
+          setData({
+            word,
+            meanings: data[0].meanings,
+            phonetics: data[0].phonetics
+          });
         }
       } catch (err) {
         setError("Meaning not found. Please try another word.");
@@ -38,7 +44,7 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
       // Assuming backend is at http://localhost:3000
       await axios.post(`${backendUrl}/api/words/save`, {
         word: word,
-        meaning: data?.meaning?.definitions[0]?.definition
+        meaning: data?.meanings?.[0]?.definitions[0]?.definition
       });
       setIsSaved(true);
       if (onSaveSuccess) onSaveSuccess();
@@ -98,7 +104,7 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
           ) : (
             <div className="space-y-6">
               {/* Pronunciation - currently not provided by backend */}
-              {/* {data?.phonetics?.some(p => p.audio) && (
+              {data?.phonetics?.some(p => p.audio) && (
                 <button
                   onClick={playAudio}
                   className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors font-medium bg-indigo-500/10 px-4 py-2 rounded-lg"
@@ -106,17 +112,17 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
                   <HiVolumeUp size={18} />
                   Listen to pronunciation
                 </button>
-              )} */}
+              )}
 
               {/* Meanings */}
-              {data?.meaning && (
-                <div className="space-y-3">
+              {data?.meanings?.map((meaning, mIdx) => (
+                <div key={mIdx} className="space-y-3 pb-4 border-b border-slate-800 last:border-0 last:pb-0">
                   <div className="flex items-center gap-3">
-                    <span className="italic text-indigo-400 text-sm font-semibold uppercase tracking-wider">{data.meaning.partOfSpeech}</span>
+                    <span className="italic text-indigo-400 text-sm font-semibold uppercase tracking-wider">{meaning.partOfSpeech}</span>
                     <div className="h-px flex-1 bg-slate-800"></div>
                   </div>
-                  {data.meaning.definitions.slice(0, 3).map((def, dIdx) => (
-                    <div key={dIdx} className="bg-slate-800/50 p-4 rounded-2xl border border-slate-800/50">
+                  {meaning.definitions.map((def, dIdx) => (
+                    <div key={dIdx} className="bg-slate-800/30 p-4 rounded-2xl border border-slate-800/50 hover:bg-slate-800/50 transition-colors">
                       <p className="text-slate-200 leading-relaxed">
                         {def.definition}
                       </p>
@@ -129,12 +135,12 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
                   ))}
 
                   {/* Synonyms */}
-                  {data.meaning.synonyms?.length > 0 && (
-                    <div className="pt-4 border-t border-slate-800">
-                      <p className="text-sm font-semibold text-slate-400 mb-2">Synonyms</p>
+                  {meaning.synonyms?.length > 0 && (
+                    <div className="pt-2">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Synonyms</p>
                       <div className="flex flex-wrap gap-2">
-                        {data.meaning.synonyms.slice(0, 5).map((syn, sIdx) => (
-                          <span key={sIdx} className="px-3 py-1 bg-slate-800 rounded-full text-xs text-indigo-300 border border-slate-700">
+                        {meaning.synonyms.slice(0, 5).map((syn, sIdx) => (
+                          <span key={sIdx} className="px-2 py-0.5 bg-indigo-500/10 rounded-md text-[10px] text-indigo-300 border border-indigo-500/20">
                             {syn}
                           </span>
                         ))}
@@ -142,7 +148,7 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
                     </div>
                   )}
                 </div>
-              )}
+              ))}
             </div>
           )}
         </div>
