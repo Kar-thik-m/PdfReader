@@ -17,7 +17,6 @@ app.use(cors({
     optionsSuccessStatus: 204,
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
-app.options("*", cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
