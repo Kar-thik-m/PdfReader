@@ -53,7 +53,7 @@ const SavedWords = ({ refreshTrigger }) => {
           words.map((item) => (
             <div
               key={item._id}
-              className="group bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-indigo-500/30 p-4 rounded-2xl transition-all duration-300"
+              className="group bg-slate-800/50  border border-slate-700/50  p-4 rounded-2xl transition-all duration-300"
             >
               <div className="flex justify-between items-start mb-2">
                 <h4 className="text-lg font-bold text-indigo-300 capitalize">{item.word}</h4>
