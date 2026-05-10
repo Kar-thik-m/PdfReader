@@ -10,8 +10,19 @@ connectDB();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
+}));
+app.options("*", cors());
 app.use(express.json());
+
+app.get("/", (req, res) => {
+    res.send("API is running...");
+});
 
 app.use("/api/words", WordRouter);
 
