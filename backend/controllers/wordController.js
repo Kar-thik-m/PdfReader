@@ -42,10 +42,10 @@ const saveWord = async (req, res) => {
             { word: data.word.toLowerCase().trim() },
             {
                 word: data.word,
-                meaning: data.meaning,
+                meaning: data.meaning || data.meanings?.[0],
                 meanings: data.meanings,
                 phonetics: data.phonetics,
-                translation: data.translation || []
+                translation: data.translation || [],
             },
             { upsert: true, new: true, setDefaultsOnInsert: true }
         );
