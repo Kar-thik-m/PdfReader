@@ -19,6 +19,7 @@ const SavedWords = ({ refreshTrigger, onClose }) => {
     }
   };
 
+  console.log(words);
   useEffect(() => {
     fetchWords();
   }, [refreshTrigger]);
@@ -61,15 +62,56 @@ const SavedWords = ({ refreshTrigger, onClose }) => {
           words.map((item) => (
             <div
               key={item._id}
-              className="group bg-slate-800/50  border border-slate-700/50  p-4 rounded-2xl transition-all duration-300"
+              className="group bg-slate-800/40 border border-slate-700/50 p-4 rounded-3xl transition-all duration-300 hover:bg-slate-800/80 hover:border-indigo-500/30"
             >
-              <div className="flex justify-between items-start mb-2">
-                <h4 className="text-lg font-bold text-indigo-300 capitalize">{item.word}</h4>
-                {/* Delete functionality could be added here */}
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h4 className="text-xl font-bold text-white capitalize">{item.word}</h4>
+                  {item.translation && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {(Array.isArray(item.translation) ? item.translation : [item.translation]).map((t, i) => (
+                        <span key={i} className="text-indigo-400 text-[10px] font-bold bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="text-sm text-slate-400 leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all">
-                {item.meaning}
-              </p>
+
+              <div className="space-y-4">
+                {item.meanings && item.meanings.length > 0 ? (
+                  item.meanings.map((m, mIdx) => (
+                    <div key={mIdx} className="space-y-2 border-t border-slate-800/50 pt-3 first:border-0 first:pt-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">{m.partOfSpeech}</span>
+                        <div className="h-px flex-1 bg-slate-800/50"></div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {m.definitions.slice(0, 2).map((def, dIdx) => (
+                          <div key={dIdx} className="bg-slate-900/50 p-3 rounded-xl border border-slate-800/30">
+                            <p className="text-sm text-slate-300 leading-relaxed">
+                              {def.definition || def}
+                            </p>
+                            {(def.example || (typeof def === 'object' && def.example)) && (
+                              <p className="mt-1.5 text-xs text-slate-500 italic border-l border-slate-700 pl-2">
+                                "{def.example || def.example}"
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-400 leading-relaxed">
+                    {typeof item.meaning === 'object'
+                      ? item.meaning?.definitions?.[0]?.definition
+                      : item.meaning}
+                  </p>
+                )}
+              </div>
             </div>
           ))
         )}

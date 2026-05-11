@@ -8,24 +8,21 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [tamilTranslations, setTamilTranslations] = useState([]);
 
   useEffect(() => {
     const fetchMeaning = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetching directly from the dictionary API to bypass backend issues
-        const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        // Fetching through our backend API
+        const response = await axios.get(`${backendUrl}/api/words/meaning/${word}`);
         const data = response.data;
-        console.log("data", data);
-        if (!data || !data.length) {
+
+        if (!data || !data.meanings || data.meanings.length === 0) {
           setError("Meaning not found. Please try another word.");
         } else {
-          setData({
-            word,
-            meanings: data[0].meanings,
-            phonetics: data[0].phonetics
-          });
+          setData(data);
         }
       } catch (err) {
         setError("Meaning not found. Please try another word.");
@@ -34,17 +31,34 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
       }
     };
 
+    const tamilWord = async () => {
+      try {
+        const tamilRes = await axios.get(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ta`);
+        const matches = tamilRes.data?.matches;
+        if (matches) {
+          // Extract all unique translations from matches
+          const translations = [...new Set(matches.map(m => m.translation))];
+          setTamilTranslations(translations);
+
+        }
+      } catch (error) {
+        console.error("Failed to translate word", error);
+      }
+    }
+
     if (word) {
       fetchMeaning();
+      tamilWord();
     }
   }, [word]);
-
   const handleSave = async () => {
     try {
       // Assuming backend is at http://localhost:3000
       await axios.post(`${backendUrl}/api/words/save`, {
-        word: word,
-        meaning: data?.meanings?.[0]?.definitions[0]?.definition
+        data: {
+          ...data,
+          translation: tamilTranslations
+        },
       });
       setIsSaved(true);
       if (onSaveSuccess) onSaveSuccess();
@@ -72,7 +86,15 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
         <div className="p-4 sm:p-6 flex items-start justify-between bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-800">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white capitalize mb-1">{word}</h2>
-            {/* The backend currently doesn't return phonetics, but we'll leave this commented out or handle it gracefully */}
+            {tamilTranslations.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2 animate-fade-in">
+                {tamilTranslations.map((t, idx) => (
+                  <span key={idx} className="text-indigo-400 text-sm font-medium bg-indigo-500/10 px-3 py-1 rounded-lg border border-indigo-500/20">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <button
