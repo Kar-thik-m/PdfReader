@@ -50,21 +50,15 @@ const PDFReader = ({ onWordClick }) => {
     };
 
     const handleTextClick = (e) => {
-        let text = "";
-        const selection = window.getSelection();
-        if (selection) {
-            text = selection.toString().trim();
-            if (text && text.split(/\s+/).length === 1) {
-                onWordClick(text);
-            }
-        } else if (e.target?.textContent) {
-            text = e.target.textContent.trim();
-            console.log("Clicked on", text);
+        const selection = window.getSelection?.();
+        const text = selection?.toString().trim();
+
+        if (text && text.split(/\s+/).length === 1) {
+            onWordClick(text);
         }
-
-
-
     };
+
+
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">
@@ -138,8 +132,8 @@ const PDFReader = ({ onWordClick }) => {
             <div
                 ref={containerRef}
                 className="w-full flex-1 flex justify-center items-start overflow-auto custom-scrollbar px-2 md:px-0"
-
-                onPointerUp={() => handleTextClick()}
+                onMouseUp={handleTextClick}
+                onTouchEnd={handleTextClick}
             >
                 {!file ? (
                     <div className="mt-10 md:mt-20 flex flex-col items-center text-center max-w-md animate-fade-in px-4">
