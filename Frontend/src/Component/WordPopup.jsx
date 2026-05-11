@@ -66,12 +66,12 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
   if (!word) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/10 animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/10 animate-in zoom-in-95 duration-300 mx-2">
         {/* Header */}
-        <div className="p-6 flex items-start justify-between bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-800">
+        <div className="p-4 sm:p-6 flex items-start justify-between bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-800">
           <div>
-            <h2 className="text-3xl font-bold text-white capitalize mb-1">{word}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white capitalize mb-1">{word}</h2>
             {/* The backend currently doesn't return phonetics, but we'll leave this commented out or handle it gracefully */}
           </div>
           <div className="flex gap-2">
@@ -91,7 +91,7 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        <div className="p-4 sm:p-6 max-h-[70vh] sm:max-h-[60vh] overflow-y-auto custom-scrollbar">
           {loading ? (
             <div className="flex flex-col items-center py-12">
               <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -153,7 +153,7 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
           )}
         </div>
 
-        <div className="p-6 bg-slate-800/30 border-t border-slate-800 text-center">
+        <div className="p-4 sm:p-6 bg-slate-800/30 border-t border-slate-800 text-center">
           <button
             onClick={onClose}
             className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/20"

@@ -38,29 +38,37 @@ const Home = () => {
       </div>
 
       {/* Sidebar Toggle Button */}
-      <button 
+      <button
         onClick={() => setShowSavedWords(!showSavedWords)}
         className="fixed bottom-8 right-8 z-30 w-16 h-16 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center shadow-2xl shadow-indigo-500/40 transition-all active:scale-90 group"
       >
         {showSavedWords ? <HiX size={28} /> : <HiBookOpen size={28} />}
         {!showSavedWords && (
-            <span className="absolute right-20 bg-slate-900 text-white px-3 py-1 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-slate-800 shadow-xl pointer-events-none">
-                View Saved Words
-            </span>
+          <span className="absolute right-20 bg-slate-900 text-white px-3 py-1 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-slate-800 shadow-xl pointer-events-none">
+            View Saved Words
+          </span>
         )}
       </button>
 
       {/* Saved Words Sidebar */}
-      {showSavedWords && (
-        <div className="z-20 border-l border-slate-800">
-          <SavedWords refreshTrigger={refreshTrigger} />
-        </div>
-      )}
-      
+      <div
+        className={`fixed inset-y-0 right-0 z-40 transform transition-transform duration-500 ease-in-out ${showSavedWords ? 'translate-x-0' : 'translate-x-full'
+          } lg:relative lg:translate-x-0 lg:block ${showSavedWords ? 'block' : 'hidden lg:block'}`}
+      >
+        {/* Backdrop for mobile */}
+        {showSavedWords && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm lg:hidden z-[-1]"
+            onClick={() => setShowSavedWords(false)}
+          ></div>
+        )}
+        <SavedWords refreshTrigger={refreshTrigger} onClose={() => setShowSavedWords(false)} />
+      </div>
+
       {selectedWord && (
-        <WordPopup 
-          word={selectedWord} 
-          onClose={closePopup} 
+        <WordPopup
+          word={selectedWord}
+          onClose={closePopup}
           onSaveSuccess={onWordSaved}
         />
       )}

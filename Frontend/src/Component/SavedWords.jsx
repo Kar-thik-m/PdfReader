@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { HiTrash, HiRefresh, HiBookOpen } from "react-icons/hi";
+import { HiTrash, HiRefresh, HiBookOpen, HiX } from "react-icons/hi";
 import backendUrl from "../backendUrl";
 
-const SavedWords = ({ refreshTrigger }) => {
+const SavedWords = ({ refreshTrigger, onClose }) => {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,12 +24,20 @@ const SavedWords = ({ refreshTrigger }) => {
   }, [refreshTrigger]);
 
   return (
-    <div className="bg-slate-900/80 backdrop-blur-xl border-l border-slate-800 w-80 h-screen flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-right duration-500">
-      <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <HiBookOpen className="text-indigo-400" />
-          Saved Words
-        </h3>
+    <div className="bg-slate-900/90 backdrop-blur-2xl border-l border-slate-800 w-full sm:w-80 lg:w-96 h-screen flex flex-col shadow-2xl overflow-hidden">
+      <div className="p-4 md:p-6 border-b border-slate-800 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 hover:bg-slate-800 rounded-lg text-slate-400 transition-all mr-1"
+          >
+            <HiX size={20} />
+          </button>
+          <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <HiBookOpen className="text-indigo-400" />
+            Saved Words
+          </h3>
+        </div>
         <button
           onClick={fetchWords}
           className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-indigo-400 transition-all"
