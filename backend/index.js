@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 
 /* -------------------- CORS -------------------- */
 app.use(cors({
-    origin: ["http://localhost:5173", "https://pdfreader-4185.onrender.com"], // Add your deployed frontend URL here
+    origin: ["http://localhost:5173", "https://pdfreaders.netlify.app/", "https://6a0088e905855c8dd769050d--pdfreaders.netlify.app/"], // Add your deployed frontend URL here
     credentials: true
 }));
 
