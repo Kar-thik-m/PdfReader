@@ -11,9 +11,10 @@ const getMeaning = async (req, res) => {
             const data = response.data[0];
             res.json({
                 word,
-                meaning: data.meanings?.[0], // For backward compatibility
+                meaning: data.meaning,
                 meanings: data.meanings,
-                phonetics: data.phonetics
+                phonetics: data.phonetics,
+
             });
         } else {
             res.status(404).json({ error: "Meaning not found" });
@@ -34,23 +35,22 @@ const saveWord = async (req, res) => {
             return res.status(400).json({ error: "Invalid data" });
         }
 
-        // Map meanings and definitions
-        const mappedMeanings = data.meanings.map(m => ({
-            partOfSpeech: m.partOfSpeech,
-            definitions: m.definitions.map(d => d.definition)
-        }));
+        console.log("Saving word data:", JSON.stringify(data, null, 2));
 
-        // Upsert to avoid duplicates
+        // Upsert to avoid duplicates, saving the full structure
         const savedWord = await Word.findOneAndUpdate(
-            { word: data.word.toLowerCase() },
+            { word: data.word.toLowerCase().trim() },
             {
                 word: data.word,
-                meanings: mappedMeanings,
-                meaning: mappedMeanings[0]?.definitions[0] || ""
+                meaning: data.meaning,
+                meanings: data.meanings,
+                phonetics: data.phonetics,
+                translation: data.translation || []
             },
-            { upsert: true, new: true }
+            { upsert: true, new: true, setDefaultsOnInsert: true }
         );
 
+        console.log("Word saved successfully:", savedWord.word);
         res.json(savedWord);
 
     } catch (err) {
