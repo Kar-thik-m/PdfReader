@@ -6,14 +6,14 @@ const getMeaning = async (req, res) => {
     try {
         const word = req.params.word;
         const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-        
+
         if (response.data && response.data.length > 0) {
             const data = response.data[0];
-            res.json({ 
-                word, 
+            res.json({
+                word,
                 meaning: data.meanings?.[0], // For backward compatibility
                 meanings: data.meanings,
-                phonetics: data.phonetics 
+                phonetics: data.phonetics
             });
         } else {
             res.status(404).json({ error: "Meaning not found" });
@@ -29,10 +29,32 @@ const getMeaning = async (req, res) => {
 // Save word to DB
 const saveWord = async (req, res) => {
     try {
-        const newWord = await Word.create(req.body);
-        res.json(newWord);
+        const { data } = req.body;
+        if (!data || !data.word) {
+            return res.status(400).json({ error: "Invalid data" });
+        }
+
+        // Map meanings and definitions
+        const mappedMeanings = data.meanings.map(m => ({
+            partOfSpeech: m.partOfSpeech,
+            definitions: m.definitions.map(d => d.definition)
+        }));
+
+        // Upsert to avoid duplicates
+        const savedWord = await Word.findOneAndUpdate(
+            { word: data.word.toLowerCase() },
+            {
+                word: data.word,
+                meanings: mappedMeanings,
+                meaning: mappedMeanings[0]?.definitions[0] || ""
+            },
+            { upsert: true, new: true }
+        );
+
+        res.json(savedWord);
 
     } catch (err) {
+        console.error("Save error:", err);
         res.status(500).json({ error: "Save failed" });
     }
 };
@@ -40,7 +62,7 @@ const saveWord = async (req, res) => {
 // gET all words
 const getWords = async (req, res) => {
     try {
-        const words = await Word.find();
+        const words = await Word.find().sort({ createdAt: -1 });
         res.json(words);
     } catch (err) {
         res.status(500).json({ error: "Get failed" });
