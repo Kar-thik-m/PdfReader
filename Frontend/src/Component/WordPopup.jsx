@@ -117,19 +117,28 @@ const WordPopup = ({ word, onClose, onSaveSuccess }) => {
               {/* Meanings */}
               {data?.meanings?.map((meaning, mIdx) => (
                 <div key={mIdx} className="space-y-3 pb-4 border-b border-slate-800 last:border-0 last:pb-0">
+                  <div className="text-white font-bold"> part of speech :  </div>
                   <div className="flex items-center gap-3">
+
                     <span className="italic text-indigo-400 text-sm font-semibold uppercase tracking-wider">{meaning.partOfSpeech}</span>
                     <div className="h-px flex-1 bg-slate-800"></div>
                   </div>
+                  <div className="text-white font-bold"> definitions :  </div>
                   {meaning.definitions.map((def, dIdx) => (
+
                     <div key={dIdx} className="bg-slate-800/30 p-4 rounded-2xl border border-slate-800/50 hover:bg-slate-800/50 transition-colors">
+                      <div className="text-white font-bold"> no :{dIdx + 1}</div>
                       <p className="text-slate-200 leading-relaxed">
                         {def.definition}
                       </p>
+
                       {def.example && (
-                        <p className="mt-2 text-slate-400 text-sm italic border-l-2 border-indigo-500/30 pl-3">
-                          "{def.example}"
-                        </p>
+                        <>
+                          <div className="text-slate-400 font-bold mt-2"> examples : </div>
+                          <p className="mt-2 text-slate-400 text-sm italic border-l-2 border-indigo-500/30 pl-3">
+                            "{def.example}"
+                          </p>
+                        </>
                       )}
                     </div>
                   ))}
